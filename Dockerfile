@@ -13,8 +13,5 @@ ENV ENABLE_FAIL2BAN=1 \
     ONE_DIR=1 \
     DMS_DEBUG=0
 
-# The volumes will be mounted by Railway
-VOLUME ["/var/mail", "/var/mail-state", "/var/log/mail", "/tmp/docker-mailserver"]
-
 # Use the default entrypoint from docker-mailserver
 CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
