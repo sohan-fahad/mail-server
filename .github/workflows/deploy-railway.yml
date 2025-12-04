@@ -20,7 +20,6 @@ jobs:
 
       - name: Deploy to Railway
         env:
-          # RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-          RAILWAY_TOKEN: "dc9eefb2-6ddb-408f-9c75-c3b7d4154e6f"
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
           railway up --service mailserver

@@ -5,9 +5,9 @@
 
 set -e
 
-DOMAIN="sohanfahad.dev"
-MAIL_DOMAIN="mail.sohanfahad.dev"
-COMPOSE_FILE="compose.yaml"
+DOMAIN="chalan.co"
+MAIL_DOMAIN="mail.chalan.co"
+COMPOSE_FILE="docker-compose.yaml"
 
 # Colors for output
 RED='\033[0;31m'

@@ -1,0 +1,71 @@
+services:
+  mailserver:
+    image: ghcr.io/docker-mailserver/docker-mailserver:latest
+    container_name: mailserver
+    hostname: mail.chalan.co
+    ports:
+      - "25:25"    # SMTP
+      - "587:587"  # SMTP Submission
+      - "465:465"  # SMTP Submission (SSL)
+      - "143:143"  # IMAP
+      - "993:993"  # IMAP (SSL)
+    volumes:
+      - ./docker-data/dms/mail-data/:/var/mail/
+      - ./docker-data/dms/mail-state/:/var/mail-state/
+      - ./docker-data/dms/mail-logs/:/var/log/mail/
+      - ./docker-data/dms/config/:/tmp/docker-mailserver/
+      - /etc/localtime:/etc/localtime:ro
+    tmpfs:
+      - /var/spool/postfix:uid=100,gid=101
+    environment:
+      - ENABLE_FAIL2BAN=1
+      - SSL_TYPE=
+      - PERMIT_DOCKER=network
+      - SPOOF_PROTECTION=0
+      - ENABLE_SPAMASSASSIN=1
+      - ENABLE_CLAMAV=1
+      - ENABLE_POSTGREY=1
+      - ONE_DIR=1
+      - DMS_DEBUG=0
+    cap_add:
+      - NET_ADMIN
+    restart: always
+    networks:
+      - mail-network
+
+  # Roundcube Webmail - Modern UI for reading/sending emails
+  roundcube:
+    image: roundcube/roundcubemail:latest
+    container_name: roundcube
+    ports:
+      - "8080:80"  # Access webmail at http://localhost:8080
+    environment:
+      - ROUNDCUBEMAIL_DEFAULT_HOST=mailserver
+      - ROUNDCUBEMAIL_DEFAULT_PORT=143
+      - ROUNDCUBEMAIL_SMTP_SERVER=mailserver
+      - ROUNDCUBEMAIL_SMTP_PORT=587
+      - ROUNDCUBEMAIL_UPLOAD_MAX_FILESIZE=30M
+    volumes:
+      - ./docker-data/roundcube/www:/var/www/html
+      - ./docker-data/roundcube/db/sqlite:/var/roundcube/db
+    depends_on:
+      - mailserver
+    restart: always
+    networks:
+      - mail-network
+
+  # MailCrab - Email testing tool (catches all emails for development)
+  mailcrab:
+    image: marlonb/mailcrab:latest
+    container_name: mailcrab
+    ports:
+      - "1080:1080"  # Web UI at http://localhost:1080
+      - "1025:1025"  # SMTP port for testing
+    restart: always
+    networks:
+      - mail-network
+
+networks:
+  mail-network:
+    driver: bridge
+
